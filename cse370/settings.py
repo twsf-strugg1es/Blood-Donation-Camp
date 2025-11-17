@@ -11,7 +11,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 import os.path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -22,11 +26,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-n4-on5fsw(1_lzj6ucp5@ltu^m0sko&#+iewemcwoa95)+oyq&'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-n4-on5fsw(1_lzj6ucp5@ltu^m0sko&#+iewemcwoa95)+oyq&')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 
 
 # Application definition
@@ -77,16 +81,14 @@ WSGI_APPLICATION = 'cse370.wsgi.application'
 
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'bloodbank',
-            'USER': 'root' ,
-            'PASSWORD': '1234',
-            'HOST': 'localhost',
-            'PORT': 3306,
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('DB_NAME', 'bloodbank'),
+        'USER': os.getenv('DB_USER', 'root'),
+        'PASSWORD': os.getenv('DB_PASSWORD', '1234'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': int(os.getenv('DB_PORT', '3306')),
         'OPTIONS': {
-            'init_command': 'SET sql_mode=STRICT_TRANS_TABLES', ##
+            'init_command': 'SET sql_mode=STRICT_TRANS_TABLES',
         }
     }
 }
@@ -125,7 +127,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
