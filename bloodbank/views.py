@@ -95,19 +95,40 @@ def update_bank(zone, blood_type, quantity):
 
 def entry(request):
     if request.method == 'POST':
-        date = request.POST['date']
-        blood_type = request.POST['blood_type']
-        quantity = request.POST['quantity']
-        profile = UserProfile.objects.filter(user_id = request.user.id)
-        for working in profile:
-            zone = working.working_zone
-
-        #update bank info
-        update_bank(zone, blood_type, int(quantity))
-
-        BloodBagInfo.objects.create(blood_group=blood_type, date = date, quantity = quantity, branch = zone)
+        zone = request.POST.get('zone', '')
+        date = request.POST.get('date', '')
+        blood_type = request.POST.get('blood_type', '')
+        quantity_str = request.POST.get('quantity', '')
+        
+        # Validate inputs
+        if not zone or not date or not blood_type or not quantity_str:
+            messages.error(request, 'Please fill in all fields')
+            return render(request, 'blood_entry.html')
+        
+        try:
+            quantity = int(quantity_str)
+        except ValueError:
+            messages.error(request, 'Quantity must be a valid number')
+            return render(request, 'blood_entry.html')
+        
+        if quantity <= 0:
+            messages.error(request, 'Quantity must be greater than 0')
+            return render(request, 'blood_entry.html')
+        
+        # Update bank info
+        update_bank(zone, blood_type, quantity)
+        
+        # Create blood bag entry
+        BloodBagInfo.objects.create(
+            blood_group=blood_type,
+            date=date,
+            quantity=quantity,
+            branch=zone
+        )
+        
+        messages.success(request, f'Successfully added {quantity} units of {blood_type} blood to {zone} zone')
         return redirect('details')
-
+    
     return render(request, 'blood_entry.html')
 
 def details(request):
@@ -119,30 +140,81 @@ def list(request):
     return render(request, 'user_list.html', {'users': users})
 
 def delete_user(request, user_id):
-    user = User.objects.get(id=user_id)
-    user.is_staff = False
-    user.save()
+    try:
+        user = User.objects.get(id=user_id)
+        username = user.username
+        user.delete()
+        messages.success(request, f'User {username} has been removed successfully')
+    except User.DoesNotExist:
+        messages.error(request, 'User not found')
     return redirect('list')
 
 def donate(request):
     if request.method == 'POST':
-        date = request.POST['date']
-        blood_type = request.POST['blood_type']
-        quantity = int(request.POST['quantity']) * -1
-        profile = UserProfile.objects.filter(user_id = request.user.id)
-        for working in profile:
-            zone = working.working_zone
-        update_bank(zone, blood_type, int(quantity))
-        BloodBagInfo.objects.create(blood_group=blood_type, date = date, quantity = quantity, branch = zone)
+        zone = request.POST.get('zone', '')
+        date = request.POST.get('date', '')
+        blood_type = request.POST.get('blood_type', '')
+        quantity_str = request.POST.get('quantity', '')
+        
+        # Validate inputs
+        if not zone or not date or not blood_type or not quantity_str:
+            messages.error(request, 'Please fill in all fields')
+            return render(request, 'donate.html')
+        
+        try:
+            quantity = int(quantity_str)
+        except ValueError:
+            messages.error(request, 'Quantity must be a valid number')
+            return render(request, 'donate.html')
+        
+        if quantity <= 0:
+            messages.error(request, 'Quantity must be greater than 0')
+            return render(request, 'donate.html')
+        
+        quantity_negative = quantity * -1
+        
+        # Update bank info (deduct from inventory)
+        update_bank(zone, blood_type, quantity_negative)
+        
+        # Create blood bag entry with negative quantity
+        BloodBagInfo.objects.create(
+            blood_group=blood_type,
+            date=date,
+            quantity=quantity_negative,
+            branch=zone
+        )
+        
+        messages.success(request, f'Successfully recorded donation of {quantity} units of {blood_type} blood from {zone} zone')
         return redirect('details')
+    
     return render(request, 'donate.html')
 
 def search(request):
     if request.method == 'POST':
-        zone = request.POST['zone']
-        blood_group = request.POST['blood_group']
+        zone = request.POST.get('zone', '')
+        blood_group = request.POST.get('blood_group', '')
+        quantity_str = request.POST.get('quantity', '')
+        
+        # Validate that all fields are provided
+        if not zone or not blood_group or not quantity_str:
+            messages.error(request, 'Please fill in all fields')
+            return render(request, 'search.html')
+        
+        try:
+            quantity = int(quantity_str)
+        except ValueError:
+            messages.error(request, 'Quantity must be a valid number')
+            return render(request, 'search.html')
+        
+        if quantity < 0:
+            messages.error(request, 'Quantity cannot be negative')
+            return render(request, 'search.html')
+        
         avail = BloodBankInfo.objects.filter(branch_zone=zone)
-
+        
+        count = 0
+        blood = ''
+        
         for i in avail:
             if blood_group == 'a_positive':
                 count = i.a_positive
@@ -168,22 +240,13 @@ def search(request):
             elif blood_group == 'ab_negative':
                 count = i.ab_negative
                 blood = 'AB-'
-
-        quantity = int(request.POST['quantity'])
-        if quantity<0:
-            return  render(request, 'search.html')
-        elif quantity<= count:
-                available = True
-        else:
-                available = False
-
-
-        donors = UserProfile.objects.filter(zone= zone, blood = blood, is_donor = True)
-        print(donors)
-
-
-        return render(request, 'search.html', {'availability': available, 'donors':donors})
-
+        
+        available = quantity <= count if count > 0 else False
+        
+        donors = UserProfile.objects.filter(zone=zone, blood=blood, is_donor=True)
+        
+        return render(request, 'search.html', {'availability': available, 'donors': donors})
+    
     return render(request, 'search.html')
 
 

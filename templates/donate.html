@@ -4,34 +4,119 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blood Donation Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #800000;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f5f5f5;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            color: #800000;
+            text-align: center;
+            font-weight: bold;
+        }
+        .messages {
+            margin-bottom: 20px;
+        }
+        .messages p {
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        label {
+            display: block;
+            color: #000;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        select, input[type="date"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #800000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #600000;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 15px;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .back-btn:hover {
+            background-color: #000;
+        }
+    </style>
 </head>
 <body>
-    <div style="text-align:center">
+    <div class="container">
+        <a href="javascript:history.back()" class="back-btn">← Back</a>
+        <h1>Blood Donation Information</h1>
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <p style="color: {% if message.tags %}red{% else %}green{% endif %};">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <form method="post" action="donate">
+            {% csrf_token %}
+            <label for="zone">Zone:</label>
+            <select id="zone" name="zone" required>
+                <option value="">Select Zone</option>
+                <option value="North">North</option>
+                <option value="South">South</option>
+            </select>
 
-    <h1>Blood Donation Information</h1>
-    <form method="post" action="donate">
-        {% csrf_token %}
-        <label for="date">Donation Date:</label>
-        <input type="date" id="date" name="date" required> <br><br>
+            <label for="date">Donation Date:</label>
+            <input type="date" id="date" name="date" required>
 
-        <label for="blood_type">Blood Type:</label>
-        <select id="blood_type" name="blood_type" required>
-            <option value="A+">A+</option>
-            <option value="A-">A-</option>
-            <option value="B+">B+</option>
-            <option value="B-">B-</option>
-            <option value="O+">O+</option>
-            <option value="O-">O-</option>
-            <option value="AB+">AB+</option>
-            <option value="AB-">AB-</option>
-        </select> <br><br>
+            <label for="blood_type">Blood Type:</label>
+            <select id="blood_type" name="blood_type" required>
+                <option value="">Select Blood Type</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+            </select>
 
-        <label for="quantity">Quantity:</label>
-        <input type="number" id="quantity" name="quantity" min="1" required><br><br>
+            <label for="quantity">Quantity (units):</label>
+            <input type="number" id="quantity" name="quantity" min="1" required>
 
-
-        <button type="submit">Submit</button>
-    </form>
+            <button type="submit">Record Donation</button>
+        </form>
     </div>
 </body>
 </html>

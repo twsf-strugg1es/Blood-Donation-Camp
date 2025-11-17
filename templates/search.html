@@ -4,84 +4,156 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Users</title>
-        <style>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #800000;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            color: #800000;
+            text-align: center;
+            font-weight: bold;
+        }
+        h4 {
+            color: #333;
+            font-weight: bold;
+            text-align: center;
+        }
+        label {
+            display: block;
+            color: #000;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #800000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #600000;
+        }
         table {
             border-collapse: collapse;
             width: 100%;
+            margin-top: 30px;
         }
-
         th, td {
-            border: 1px solid black;
-            padding: 8px;
+            border: 2px solid #333;
+            padding: 12px;
             text-align: left;
+            font-weight: bold;
         }
-
         th {
+            background-color: #800000;
+            color: white;
+        }
+        td {
+            color: #000;
+        }
+        tr:nth-child(even) {
             background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #e8e8e8;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .back-btn:hover {
+            background-color: #000;
         }
     </style>
 </head>
 <body>
-<section style="text-align:center;" >
-    <h1>Looking for Blood</h1>
-    <form method="post" action="{% url 'search' %}">
-        {% csrf_token %}
-        <label for="zone">Zone:</label>
-        <select name="zone" id="zone">
-            <option value="North">North</option>
-            <option value="South">South</option>
-        </select>
-<br><br>
-        <label for="blood_group">Blood Group:</label>
-        <select name="blood_group" id="blood_group">
-            <option value="a_positive">A+</option>
-            <option value="a_negative">A-</option>
-            <option value="b_positive">B+</option>
-            <option value="b_negative">B-</option>
-            <option value="o_positive">O+</option>
-            <option value="o_negative">O-</option>
-            <option value="ab_positive">AB+</option>
-            <option value="ab_negative">AB-</option>
+    <div class="container">
+        <a href="javascript:history.back()" class="back-btn">← Back</a>
+        <h1>Looking for Blood</h1>
+        <form method="post" action="{% url 'search' %}">
+            {% csrf_token %}
+            <label for="zone">Zone:</label>
+            <select name="zone" id="zone">
+                <option value="North">North</option>
+                <option value="South">South</option>
             </select>
-<br><br>
-        <label for="quantity">Quantity:</label>
-        <input type="number" name="quantity" id="quantity">
-<br><br>
-        <button type="submit">Search</button>
-    </form>
-    {% if availability %}
-        <h4>Your desired blood is available</h4>
-    {% else %}
-        <h4>Sorry your desired blood is not available.. </h4>
-    {% endif %}
 
-<br><br>
+            <label for="blood_group">Blood Group:</label>
+            <select name="blood_group" id="blood_group">
+                <option value="a_positive">A+</option>
+                <option value="a_negative">A-</option>
+                <option value="b_positive">B+</option>
+                <option value="b_negative">B-</option>
+                <option value="o_positive">O+</option>
+                <option value="o_negative">O-</option>
+                <option value="ab_positive">AB+</option>
+                <option value="ab_negative">AB-</option>
+            </select>
 
-  <table>
-        <h1>Available Donors</h1>
-        <thead>
-            <tr>
-                <th>Donor Name</th>
-                <th>Blood Group</th>
-                <th>Email</th>
-                <th>Phone Number</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for donor in donors %}
+            <label for="quantity">Quantity:</label>
+            <input type="number" name="quantity" id="quantity">
 
-            <tr>
-                <td>{{ donor.user.first_name}}{{ donor.user.last_name}}</td>
-                <td>{{ donor.blood }}</td>
-                <td>{{ donor.user.email }}</td>
-                <td>{{ donor.phone_number }}</td>
+            <button type="submit">Search</button>
+        </form>
 
-            {% endfor %}
-        </tbody>
-    </table>
+        {% if availability %}
+            <h4 style="color: green;">✓ Your desired blood is available</h4>
+        {% else %}
+            <h4 style="color: red;">✗ Sorry your desired blood is not available..</h4>
+        {% endif %}
 
-
-</section>
-
+        <table>
+            <h2 style="color: #800000; font-weight: bold;">Available Donors</h2>
+            <thead>
+                <tr>
+                    <th>Donor Name</th>
+                    <th>Blood Group</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for donor in donors %}
+                <tr>
+                    <td>{{ donor.user.first_name}}{{ donor.user.last_name}}</td>
+                    <td>{{ donor.blood }}</td>
+                    <td>{{ donor.user.email }}</td>
+                    <td>{{ donor.phone_number }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>

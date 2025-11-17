@@ -64,6 +64,26 @@ main p {
     color: #666;
 }
 
+.action-buttons {
+    margin: 30px 0;
+}
+
+.action-buttons a {
+    display: inline-block;
+    margin: 10px 15px;
+    padding: 12px 30px;
+    background-color: #ff4d4d;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.action-buttons a:hover {
+    background-color: #cc3333;
+}
+
 #images {
     display: flex;
     justify-content: center;
@@ -132,6 +152,11 @@ footer {
             <p>Register on our website, find a nearby blood donation camp, and schedule your donation. It's that easy!</p>
             <p>You can also be a volunteer blood doner. Create your profile and be ready for any emergency needs!</p>
         </section>
+
+        <div class="action-buttons">
+            <a href="search">🔍 Search Blood</a>
+            <a href="details">📊 View Blood Bank Details</a>
+        </div>
     </main>
     <footer>
         <p>&copy; 2024 Blood Donation Service. All rights reserved.</p>
