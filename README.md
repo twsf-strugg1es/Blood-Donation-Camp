@@ -103,6 +103,10 @@ EXIT;
 
 ## 🚀 Step 3: Install Python Dependencies
 
+before you pip install make sure you to copy paste this line inside 'requirements.txt' file: 
+'Django==4.2.8
+mysqlclient==2.2.6
+python-dotenv==1.0.0'
 Open terminal/PowerShell in the project folder and run:
 
 ```bash
